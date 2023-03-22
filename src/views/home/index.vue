@@ -10,7 +10,7 @@
       </div>
       <div class="login-btns">
         <div class="btns-login" @click="toLogin">登录</div>
-        <div class="btns-register">还没账号？<span class="link">点击注册</span></div>
+        <div class="btns-register">还没账号？<span class="link" @click="toRegister">点击注册</span></div>
       </div>
   </div>
 </template>
@@ -42,10 +42,17 @@ defineExpose({
   ...toRefs(data)
 })
 
+
+// 登录
 const toLogin = () => {
-  console.log('点击我了')
   router.push({
     name: 'login'
+  })
+}
+// 注册
+const toRegister = () => {
+  router.push({
+    name: 'register'
   })
 }
 

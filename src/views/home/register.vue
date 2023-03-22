@@ -11,15 +11,15 @@
       <div class="login-btns">
         <div class="btns-field">
           <!-- 输入手机号，调起手机号键盘 -->
-          <van-field class="field" v-model="tel" type="tel" label="手机号" clearable label-width="50" label-class="field-label" maxlength="11" 
+          <van-field class="field" v-model="tel" type="tel" label="手机号" clearable label-width="60" label-class="field-label" maxlength="11" 
           :error-message="telErrMsg" @blur="telBlur" @focus="telFocus"/>
           <!-- 输入密码 -->
-          <van-field class="field" v-model="password" type="password" label="密码" clearable label-width="50" label-class="field-label" 
+          <van-field class="field" v-model="password" type="password" label="密码" clearable label-width="60" label-class="field-label" 
           :error-message="pswordErrMsg" @blur="pswordBlur" @focus="pswordFocus"/>
-          <van-field class="field" v-model="passwordConfirm" type="password" label="确认密码" clearable label-width="50" label-class="field-label" 
+          <van-field class="field" v-model="passwordConfirm" type="password" label="确认密码" clearable label-width="60" label-class="field-label" 
           :error-message="pswordConErrMsg" @blur="pswordConBlur" @focus="pswordConFocus"/>
         </div>
-        <div class="btns-login" @click="handlerLogin">注册</div>
+        <div class="btns-login" @click="handlerRegister">注册</div>
       </div>
   </div>
 </template>
@@ -69,7 +69,7 @@ const pswordBlur = () => {
   pswordErrMsg.value = ''
    if(!password.value){
      pswordErrMsg.value = '请输入密码'
-     return false
+     return false   
    }
    return true
 }
@@ -92,14 +92,18 @@ const pswordConFocus = () => {
   pswordConErrMsg.value = ''
 }
 // 点击登录按钮
-const handlerLogin = () => {
+const handlerRegister = () => {
   if(!tel.value && !password.value && !passwordConfirm.value){
     pswordErrMsg.value = '请输入密码'
     telErrMsg.value = '请输入正确的手机号码'
     pswordConErrMsg.value = '请再次输入密码确认'
   }
   if(!telErrMsg.value && !pswordErrMsg.value && !pswordConErrMsg.value && tel.value && password.value && passwordConfirm.value){
-    console.log('可以点击了')
+    if(password.value !== passwordConfirm.value){
+      pswordConErrMsg.value = '两次输入密码不一样'
+    }else{
+      console.log('可以了')
+    }
   }
 }
 defineExpose({
