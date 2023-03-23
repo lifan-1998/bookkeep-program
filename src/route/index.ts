@@ -30,9 +30,17 @@ const router = createRouter({
             component: () => import('../App.vue'),
             children: [
                 {
-                    path: '/home',
-                    name: 'home',
-                    component: () => import('../views/index/main-index.vue')
+                    path: '/main-index',
+                    name: 'main-index',
+                    redirect: '/home',
+                    component: () => import('../views/index/main-index.vue'),
+                    children: [
+                        {
+                            path: '/home',
+                            name: 'home',
+                            component: () => import('../views/page/home.vue'),
+                        }
+                    ]
                 },
 
             ]

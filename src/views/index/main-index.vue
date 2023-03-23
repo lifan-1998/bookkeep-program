@@ -10,7 +10,7 @@
       <div :class="$style['main-index-content']">
         <router-view></router-view>
       </div>
-      <BottomTab></BottomTab>
+      <BottomTab class="main-index-bottom"></BottomTab>
     <!-- </van-skeleton> -->
   </div>
 </template>
@@ -32,6 +32,9 @@ let loading:Boolean = ref(false)
   height: 100vh;
   .main-index-content{
     height: calc(100vh - 42px);
+  }
+  .main-index-bottom{
+    height: 42px;
   }
  }
 </style>
