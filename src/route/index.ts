@@ -9,27 +9,32 @@ const router = createRouter({
     history: createWebHistory(),
     routes: [
         {
+            path: '/index',
+            name: 'index',
+            component: () => import('../views/home/index.vue'),
+        },
+        {
+            path: '/login',
+            name: 'login',
+            component: () => import('../views/home/login.vue')
+        },
+        {
+            path: '/register',
+            name: 'register',
+            component: () => import('../views/home/login.vue')
+        },
+        {
             path: '/',
             name: 'app',
             redirect: '/index',
             component: () => import('../App.vue'),
             children: [
                 {
-                    path: '/index',
-                    name: 'index',
-                    component: () => import('../views/home/index.vue'),
+                    path: '/home',
+                    name: 'home',
+                    component: () => import('../views/index/main-index.vue')
                 },
-                {
-                    path: '/login',
-                    name: 'login',
-                    component: () => import('../views/home/login.vue')
-                },
-                {
-                    path: '/register',
-                    name: 'register',
-                    component: () => import('../views/home/register.vue')
-                },
-                
+
             ]
         }
     ]

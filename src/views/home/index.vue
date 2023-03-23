@@ -46,7 +46,10 @@ defineExpose({
 // 登录
 const toLogin = () => {
   router.push({
-    name: 'login'
+    name: 'login',
+    query:{
+      login: 'true'
+    }
   })
 }
 // 注册

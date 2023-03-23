@@ -1,7 +1,7 @@
 <!--
  * @Author: lfan
  * @Date: 2023-03-22 10:22:13
- * @Description: 登录页面
+ * @Description: 登录、注册页面
 -->
 <template>
   <div class="login">
@@ -10,84 +10,109 @@
       </div>
       <div class="login-btns">
         <div class="btns-field">
-          <!-- 输入手机号，调起手机号键盘 -->
-          <van-field class="field" v-model="tel" type="tel" label="手机号" clearable label-width="50" label-class="field-label" maxlength="11" 
-          :error-message="telErrMsg" @blur="telBlur" @focus="telFocus"/>
-          <!-- 输入密码 -->
-          <van-field class="field" v-model="password" type="password" label="密码" clearable label-width="50" label-class="field-label" 
-          :error-message="pswordErrMsg" @blur="pswordBlur" @focus="pswordFocus"/>
+          <van-form ref="loginForm">
+              <van-cell-group inset class="form-field">
+                <van-field
+                 class="field"
+                 label-class="field-label" 
+                  v-model="form.tel"
+                  name="pattern"
+                  label="手机号"
+                  placeholder="请输入手机号" 
+                  maxlength="11"
+                  clearable
+                  type="tel"
+                  :rules="[{ pattern: telPattern, message: '请输入正确的手机号' }]"
+                />
+                <van-field
+                 class="field"
+                 label-class="field-label" 
+                  v-model="form.password"
+                  name="validator"
+                  label="密码"
+                  placeholder="请输入密码"
+                  maxlength="20"
+                  clearable
+                  type="password"
+                  :rules="[{ required: true, message: '请输入密码' }]"
+                />
+                <van-field
+                v-if="!isLogin"
+                 class="field"
+                 label-class="field-label" 
+                  v-model="passwordCon"
+                  name="validator"
+                  label="确认密码"
+                  placeholder="请输入确认密码"
+                  maxlength="20"
+                  clearable
+                  type="password"
+                  :rules="[{ validator: passwordConfirm, message: '两次输入密码不相同' }]"
+                />
+              </van-cell-group>
+            </van-form>
         </div>
-        <div class="btns-login" @click="handlerLogin">登录</div>
+        <div class="btns-login" @click="handlerLogin">{{ isLogin ? '登录' : '注册' }}</div>
       </div>
   </div>
 </template>
 
 <script setup lang="ts" name="login">
-import { ref, reactive, toRefs, onBeforeMount, onMounted, watchEffect, computed } from 'vue';
-/**
-* props
-*/
-const props = defineProps({});
-//console.log('1-开始创建组件-setup')
-/**
-* 数据部分
-*/
-const data = reactive({})
-onBeforeMount(() => {
-  //console.log('2.组件挂载页面之前执行----onBeforeMount')
-})
+import { ref, reactive, toRefs, onBeforeMount, onMounted, watchEffect, computed, toRaw  } from 'vue';
+import type { FormInstance } from 'vant';
+import { useRoute, useRouter} from 'vue-router'
+
+import {Login} from './api/interface.ts'
+
+const route = useRoute()
+const router = useRouter()
+let isLogin = ref<Boolean>(false)
 onMounted(() => {
-  //console.log('3.-组件挂载到页面之后执行-------onMounted')
+  const query = toRaw(route).query.value
+  if(query){
+    isLogin.value = query.login
+  }
 })
-watchEffect(()=>{
+let passwordCon:string = ref('')
+let form = reactive<Login.RepLoginForm>({
+  tel: '',
+  password: ''
 })
-// 使用toRefs解构
-// let { } = { ...toRefs(data) } 
 
-let tel = ref('')
-let password = ref('')
-
-let telErrMsg = ref('')
-let pswordErrMsg = ref('')
-// 进行手机号码校验
-const telBlur = () => {
-  telErrMsg.value = ''
-   const re = /^1[3,4,5,6,7,8,9][0-9]{9}$/
-   let result = re.test(tel.value)
-   if(!result){
-     telErrMsg.value = '请输入正确的手机号码'
-     return false
-   }
-   return true
-}
-// 进行密码校验
-const pswordBlur = () => {
-  pswordErrMsg.value = ''
-   if(!password.value){
-     pswordErrMsg.value = '请输入密码'
-     return false
-   }
-   return true
-}
-const telFocus = () => {
-  telErrMsg.value = ''
-}
-const pswordFocus = () => {
-  pswordErrMsg.value = ''
-}
+// 手机号正则校验
+const telPattern = /^1[3,4,5,6,7,8,9][0-9]{9}$/
+const loginForm = ref<FormInstance>()
 // 点击登录按钮
 const handlerLogin = () => {
-  if(!tel.value && !password.value){
-    pswordErrMsg.value = '请输入密码'
-    telErrMsg.value = '请输入正确的手机号码'
-  }
-  if(!telErrMsg.value && !pswordErrMsg.value && tel.value && password.value){
-    console.log('可以点击了')
-  }
+  loginForm.value?.validate().then(res => {
+    console.log('非常棒，验证通过！')
+    if(!isLogin.value){
+      isLogin.value = true
+      form.tel = ''
+      form.password = ''
+      router.push({
+        name: 'login',
+        query: {
+          login: true
+        }
+      })
+    }else{
+      router.push({
+        name: 'home',
+      })
+    }
+  }).catch(() => {
+    console.log('报错')
+  })
 }
-defineExpose({
-  ...toRefs(data)
-})
+
+// 校验确认密码
+const passwordConfirm = (val) => {
+   if(val && val === form.password){
+     return true
+   }
+   return false
+}
 
 </script>
 <style lang='scss'>
@@ -123,6 +148,9 @@ defineExpose({
         }
 
         .btns-field{
+          .form-field{
+            background: unset;
+          }
           .field{
             width: 264px;
             border-radius: 20px;
