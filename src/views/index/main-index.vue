@@ -23,6 +23,12 @@ const a = ref(0)
 const touter = useRouter()
 const emit = defineEmits([""])
 let loading:Boolean = ref(false)
+
+onMounted(() => {
+})
+};
+
+
 </script>
 
 <style lang="scss" module>
