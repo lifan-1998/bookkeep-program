@@ -4,7 +4,7 @@
  * @Description: file content
  */
 
-
+// 转换全局颜色
 export const setStyle = (color: Object) => {
     if (color && color.toString() !== '{}') {
         for (let key in color) {

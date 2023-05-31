@@ -13,15 +13,27 @@
           <van-form ref="loginForm">
               <van-cell-group inset class="form-field">
                 <van-field
+                v-if="!isLogin"
                  class="field"
                  label-class="field-label" 
-                  v-model="form.tel"
+                  v-model="userName"
+                  name="validator"
+                  label="用户名"
+                  placeholder="请输入用户名"
+                  maxlength="20"
+                  clearable
+                  :rules="[{ required: true, message: '请输入用户名' }]"
+                />
+                <van-field
+                 class="field"
+                 label-class="field-label" 
+                  v-model="form.phone"
                   name="pattern"
                   label="手机号"
                   placeholder="请输入手机号" 
                   maxlength="11"
                   clearable
-                  type="tel"
+                  type="phone"
                   :rules="[{ pattern: telPattern, message: '请输入正确的手机号' }]"
                 />
                 <van-field
@@ -53,6 +65,7 @@
             </van-form>
         </div>
         <div class="btns-login" @click="handlerLogin">{{ isLogin ? '登录' : '注册' }}</div>
+        <div class="btns-register">还没账号？<span class="link" @click="toRegister">点击注册</span></div>
       </div>
   </div>
 </template>
@@ -61,8 +74,12 @@
 import { ref, reactive, toRefs, onBeforeMount, onMounted, watchEffect, computed, toRaw  } from 'vue';
 import type { FormInstance } from 'vant';
 import { useRoute, useRouter} from 'vue-router'
+import {showNotify, showLoadingToast, closeToast } from 'vant'
 
-import {Login} from './api/interface.ts'
+import {Login} from './api/interface'
+import {login, register} from './api/login'
+
+import { useMainStore } from '../../store'
 
 const route = useRoute()
 const router = useRouter()
@@ -73,11 +90,13 @@ onMounted(() => {
     isLogin.value = query.login
   }
 })
-let passwordCon:string = ref('')
+let passwordCon = ref('')
 let form = reactive<Login.RepLoginForm>({
-  tel: '',
+  phone: '',
   password: ''
 })
+
+let userName = ref('')
 
 // 手机号正则校验
 const telPattern = /^1[3,4,5,6,7,8,9][0-9]{9}$/
@@ -85,20 +104,72 @@ const loginForm = ref<FormInstance>()
 // 点击登录按钮
 const handlerLogin = () => {
   loginForm.value?.validate().then(res => {
-    console.log('非常棒，验证通过！')
+    
+    showLoadingToast({
+        message: '加载中...',
+        forbidClick: true,
+      });
     if(!isLogin.value){
-      isLogin.value = true
-      form.tel = ''
-      form.password = ''
-      router.push({
-        name: 'login',
-        query: {
-          login: true
+      // 注册
+      let param = {
+        userName: userName.value,
+        ...form
+      }
+            
+      register(param).then(res => {
+        if(res.code === 200){
+          isLogin.value = true
+          form.phone = ''
+          form.password = ''
+          userName.value = ''
+          showNotify({ type: 'success', message: res.msg });
+          // 将token和用户信息存pinia .$patch 是pinia提供的批量修改数据的方式
+          useMainStore().$patch({
+            token: res.data.token || '',
+            userInfo: res.data.userBasicInfo || {}
+          })
+          router.push({
+            name: 'home',
+          })
+
+        }else{
+          showNotify({ type: 'warning', message: res.msg });
+          
         }
+         
+      }).catch(err => {
+        console.log(err);
+        
+      }).finally( () => {
+        closeToast({
+          closeAll: true
+        })
       })
+
     }else{
-      router.push({
-        name: 'home',
+      // 登录
+      login(form).then(res => {
+        if(res.code === 200){
+          showNotify({ type: 'success', message: res.msg });
+          // 将token和用户信息存pinia
+          useMainStore().$patch({
+            token: res.data.token || '',
+            userInfo: res.data.userBasicInfo || {}
+          })
+          router.push({
+            name: 'home',
+          })
+        }else{
+          showNotify({ type: 'warning', message: res.msg });
+          
+        }
+        
+      }).catch(err => {
+        console.log(err)
+      }).finally( () => {
+        closeToast({
+          closeAll: true
+        })
       })
     }
   }).catch(() => {
@@ -112,6 +183,16 @@ const passwordConfirm = (val) => {
      return true
    }
    return false
+}
+// 注册
+const toRegister = () => {
+  router.push({
+    name: 'register',
+    query: {
+      login: false
+    }
+  })
+  isLogin.value = false
 }
 
 </script>
@@ -145,6 +226,15 @@ const passwordConfirm = (val) => {
             border-radius: 20px;
             margin: auto;
 
+        }
+        .btns-register {
+            margin-top: 15px;
+            color: #fff;
+            .link {
+                color: var(--theme-color);
+                text-decoration-line: underline;
+
+            }
         }
 
         .btns-field{

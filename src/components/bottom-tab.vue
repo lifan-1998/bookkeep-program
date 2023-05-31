@@ -9,7 +9,8 @@
   <div class="bottom-tab">
     <div :class="activeIndex === tabIndex ? 'tab tab-active' : 'tab'" v-for="(tab, tabIndex) in tabData" :key="tabIndex" @click="handlerTab(tab, tabIndex)">
       <div class="tab-icon">
-        <van-icon name="setting" />
+        <!-- <van-icon name="setting" /> -->
+        <img :src="getImgUrl(tab.icon)"/>
       </div>
       <div class="tab-title">
         {{tab.name}}
@@ -33,19 +34,23 @@ let activeIndex = ref(0)
 const tabData = ref([
   {
     name: '首页',
-    path: 'home'
+    path: 'home',
+    icon: 'nongzi.png'
   },
   {
     name: '账单',
-    path: ''
+    path: '',
+    icon: 'yangzhiguanli.png'
   },
   {
     name: '报表',
-    path: ''
+    path: '',
+    icon: 'kongzhirizhi.png'
   },
   {
     name: '我的',
-    path: ''
+    path: 'mine',
+    icon: 'lvsezhuisu.png'
   }
 ])
 
@@ -56,6 +61,12 @@ const handlerTab = (tab:TabData, tabIndex: number) => {
     name: tab.path
    })
 }
+
+// 获取本地静态文件地址
+function getImgUrl(name:string){
+  return new URL(`/src/assets/icon/${name}`, import.meta.url).href
+}
+
 </script>
 
 <style lang="scss">
@@ -67,6 +78,10 @@ const handlerTab = (tab:TabData, tabIndex: number) => {
      margin: auto;
      font-size: 14px;
       .tab-icon {
+        img{
+          width: 30px;
+          height: 30px;
+        }
 
       }
 

@@ -21,13 +21,12 @@ import {useRouter} from "vue-router"
 import BottomTab from '../../components/bottom-tab.vue'
 const a = ref(0)
 const touter = useRouter()
-const emit = defineEmits([""])
+const emit = defineEmits(["",''])
 let loading:Boolean = ref(false)
 
 onMounted(() => {
+  
 })
-};
-
 
 </script>
 
@@ -37,10 +36,10 @@ onMounted(() => {
   width: 100vw;
   height: 100vh;
   .main-index-content{
-    height: calc(100vh - 42px);
+    height: calc(100vh - 67px);
   }
   .main-index-bottom{
-    height: 42px;
+    height: 67px;
   }
  }
 </style>
